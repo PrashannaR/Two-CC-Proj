@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
@@ -60,17 +61,55 @@ func (r *Repository) CreateBook(c *fiber.Ctx) error{
 
 //MARK: DeleteBook
 func (r *Repository) DeleteBook (c *fiber.Ctx) error{
+	bookModel := models.Books{}
 
+	id := c.Params("id")
+
+	if id == ""{
+		c.Status(http.StatusInternalServerError).JSON(
+			&fiber.Map{"message":"id cannot be empty"})
+		return nil
+	}
+
+	err := r.DB.Delete(bookModel, id)
+
+	if err.Error != nil{
+		c.Status(http.StatusBadRequest).JSON(&fiber.Map{"message":"could not delete book"})
+		return err.Error
+	}
+	
+	c.Status(http.StatusOK).JSON(&fiber.Map{"message":"book deleted successfully"})
+
+	return nil
 }
 
 //MARK: GetBookById
 func (r *Repository) GetBookById(c *fiber.Ctx) error{
+	bookModel := models.Books{}
+	id := c.Params("id")
 
+	if id == ""{
+		c.Status(http.StatusInternalServerError).JSON(
+			&fiber.Map{"message":"id cannot be empty"})
+		return nil
+	}
+
+	err := r.DB.First(&bookModel, id)
+
+	if err.Error != nil{
+		c.Status(http.StatusBadRequest).JSON(&fiber.Map{"message":"could not find book"})
+		return err.Error
+	}
+
+	c.Status(http.StatusOK).JSON(
+		&fiber.Map{"message": "book found successfully", "data":bookModel})
+
+	return nil
 }
 
 //MARK: Get All Books
 func (r *Repository) GetBooks(c *fiber.Ctx) error{
-	bookModels := &[]models.Book{}
+	bookModels := &[]models.Books{}
 
 	err := r.DB.Find(bookModels).Error
 
@@ -93,10 +132,25 @@ func main(){
 		log.Fatal("Error loading .env file")
 	}
 
+	config := &storage.Config{
+		Host:		os.Getenv("DB_HOST"),
+		Port:		os.Getenv("DB_PORT"),
+		Password:	os.Getenv("DB_PASSWORD"),
+		User:		os.Getenv("DB_USER"),
+		SSLMode:	os.Getenv("DB_SSLMODE"),
+		DBName:		os.Getenv("DB_DBNAME"),
+	}
+
 	db, err := storage.NewConnection(config)
 
 	if err != nil {
 		log.Fatal("Error connecting to database")
+	}
+
+	err = models.MigrateBooks(db)
+
+	if err != nil {
+		log.Fatal("Error migrating database")
 	}
 
 	r := Repository{
