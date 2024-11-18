@@ -70,7 +70,19 @@ func (r *Repository) GetBookById(c *fiber.Ctx) error{
 
 //MARK: Get All Books
 func (r *Repository) GetBooks(c *fiber.Ctx) error{
+	bookModels := &[]models.Book{}
 
+	err := r.DB.Find(bookModels).Error
+
+	if err != nil {
+		c.Status(http.StatusBadRequest).JSON(
+			&fiber.Map{"message":"an error occurred while fetching the books"})
+		return err
+	}
+
+	c.Status(http.StatusOK).JSON(
+		&fiber.Map{"message":"books fetched successfully", "data":bookModels})
+	return nil
 }
 
 //MARK: Main
