@@ -5,9 +5,10 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/PrashannaR/two-cc-project/models"
+	"github.com/PrashannaR/two-cc-project/storage"
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
-	"golang.org/x/mod/sumdb/storage"
 	"gorm.io/gorm"
 )
 
@@ -140,7 +141,6 @@ func main(){
 		SSLMode:	os.Getenv("DB_SSLMODE"),
 		DBName:		os.Getenv("DB_DBNAME"),
 	}
-
 	db, err := storage.NewConnection(config)
 
 	if err != nil {
