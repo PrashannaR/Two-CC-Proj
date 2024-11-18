@@ -23,6 +23,12 @@ func (r * Repository) SetupRoutes(app *fiber.App){
 	api.Get("/books", r.GetBooks)
 }
 
+type Book struct{
+	Author			string		`json:"author"`
+	Title			string		`json:"title"`
+	Publisher		string		`json:"publisher"`
+}
+
 //MARK: Main
 func main(){
 	err := godotenv.Load(".env")
