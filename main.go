@@ -133,14 +133,16 @@ func main(){
 		log.Fatal("Error loading .env file")
 	}
 
-	config := &storage.Config{
-		Host:		os.Getenv("DB_HOST"),
-		Port:		os.Getenv("DB_PORT"),
-		Password:	os.Getenv("DB_PASSWORD"),
-		User:		os.Getenv("DB_USER"),
-		SSLMode:	os.Getenv("DB_SSLMODE"),
-		DBName:		os.Getenv("DB_DBNAME"),
-	}
+	 //MARK: Database connection
+	 config := &storage.Config{
+		Host: os.Getenv("DB_HOST"),
+		Port: os.Getenv("DB_PORT"),
+		Password: os.Getenv("DB_PASSWORD"),
+		User: os.Getenv("DB_USER"),
+		SSLMode: os.Getenv("DB_SSL_MODE"),
+		DBName: os.Getenv("DB_NAME"),
+	 }
+	 
 	db, err := storage.NewConnection(config)
 
 	if err != nil {
